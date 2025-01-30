@@ -112,9 +112,9 @@ func (s *Set[T]) Size() int {
 //	s.Clear() // Set is now empty
 //	fmt.Println(s.Len()) // Output: 0
 func (s *Set[T]) Clear() {
-    s.mu.Lock()
-    defer s.mu.Unlock()
-    s.members = make(map[T]struct{})
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.members = make(map[T]struct{})
 }
 
 // Intersect returns a new set containing elements that are present in both sets.
