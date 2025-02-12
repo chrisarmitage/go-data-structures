@@ -1,6 +1,8 @@
 package queue
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestQueue(t *testing.T) {
 	var v int
@@ -16,7 +18,7 @@ func TestQueue(t *testing.T) {
 	queue.Enqueue(10)
 	assertEquals(t, queue.Length(), 1)
 	assertEquals(t, queue.IsEmpty(), false)
-	
+
 	v, ok = queue.Peek()
 	assertEquals(t, queue.Length(), 1)
 	assertEquals(t, v, 10)
@@ -25,7 +27,7 @@ func TestQueue(t *testing.T) {
 	queue.Enqueue(20)
 	assertEquals(t, queue.Length(), 2)
 	assertEquals(t, queue.IsEmpty(), false)
-	
+
 	v, ok = queue.Peek()
 	assertEquals(t, queue.Length(), 2)
 	assertEquals(t, v, 10)
@@ -56,6 +58,29 @@ func TestQueue(t *testing.T) {
 	queue.Enqueue(30)
 	assertEquals(t, queue.Length(), 1)
 	assertEquals(t, queue.IsEmpty(), false)
+}
+
+func TestQueue_PreventDuplicates(t *testing.T) {
+	queue := NewQueue[int]()
+	err := queue.PreventDuplicates()
+	assertEquals(t, queue.Length(), 0)
+	assertEquals(t, queue.IsEmpty(), true)
+	assertEquals(t, err, nil)
+
+	queue.Enqueue(10)
+	assertEquals(t, queue.Length(), 1)
+
+	queue.Enqueue(20)
+	assertEquals(t, queue.Length(), 2)
+
+	queue.Enqueue(10)
+	assertEquals(t, queue.Length(), 2)
+
+	queueNotComparable := NewQueue[any]()
+	err = queueNotComparable.PreventDuplicates()
+	if err == nil {
+		t.Errorf("failed to return error")
+	}
 }
 
 func assertEquals[V comparable](t *testing.T, got, want V) {

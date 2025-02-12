@@ -1,10 +1,17 @@
 package queue
 
+import (
+	"fmt"
+	"reflect"
+)
+
 // Queue represents a generic FIFO queue data structure.
 // Elements are added to the back and removed from the front.
 // The zero value is not usable; use NewQueue to create a new Queue.
 type Queue[T any] struct {
 	elements []T
+
+	preventDuplicates bool
 }
 
 // NewQueue creates and returns an empty queue that can store elements of type T.
@@ -19,6 +26,20 @@ func NewQueue[T any]() *Queue[T] {
 	}
 }
 
+// PreventDuplicates will prevent duplicates being added to the queue, giving it Set qualities.
+// Returns an error if the generic T is not Comparable
+func (q *Queue[T]) PreventDuplicates() error {
+	var t T
+	v := reflect.ValueOf(t)
+	if !v.Comparable() {
+		return fmt.Errorf("type %T is not comparable", t)
+	}
+
+	q.preventDuplicates = true
+
+	return nil
+}
+
 // Enqueue adds an element to the back of the queue.
 //
 // Example:
@@ -27,6 +48,19 @@ func NewQueue[T any]() *Queue[T] {
 //	q.Enqueue(1) // queue now contains: [1]
 //	q.Enqueue(2) // queue now contains: [1, 2]
 func (q *Queue[T]) Enqueue(element T) {
+	if q.preventDuplicates {
+		newReflection := reflect.ValueOf(element)
+		if newReflection.Comparable() {
+
+			for _, e := range q.elements {
+				existingReflection := reflect.ValueOf(e)
+				if newReflection.Equal(existingReflection) {
+					return
+				}
+			}
+		}
+	}
+
 	q.elements = append(q.elements, element)
 }
 
