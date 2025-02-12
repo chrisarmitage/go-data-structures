@@ -54,7 +54,7 @@ func TestSet_Clear(t *testing.T) {
 	assertEquals(t, set.Contains(3), false)
 }
 
-func TestIntersect(t *testing.T) {
+func TestSet_Intersect(t *testing.T) {
 	s1 := NewSet[int]()
 	s1.Add(1)
 	s1.Add(2)
@@ -75,7 +75,7 @@ func TestIntersect(t *testing.T) {
 	assertEquals(t, slices.Contains(members, 4), false)
 }
 
-func TestUnion(t *testing.T) {
+func TestSet_Union(t *testing.T) {
 	s1 := NewSet[int]()
 	s1.Add(1)
 	s1.Add(2)
@@ -96,7 +96,7 @@ func TestUnion(t *testing.T) {
 	assertEquals(t, slices.Contains(members, 4), true)
 }
 
-func TestDifference(t *testing.T) {
+func TestSet_Difference(t *testing.T) {
 	s1 := NewSet[int]()
 	s1.Add(1)
 	s1.Add(2)
