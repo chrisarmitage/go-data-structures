@@ -12,6 +12,7 @@ type Queue[T any] struct {
 	elements []T
 
 	preventDuplicates bool
+	equalsFunc func(a, b T) bool
 }
 
 // NewQueue creates and returns an empty queue that can store elements of type T.
@@ -28,7 +29,18 @@ func NewQueue[T any]() *Queue[T] {
 
 // PreventDuplicates will prevent duplicates being added to the queue, giving it Set qualities.
 // Returns an error if the generic T is not Comparable
-func (q *Queue[T]) PreventDuplicates() error {
+//
+// Example:
+//
+//  q := NewQueue[ContactUser]()
+//  q.PreventDuplicates(func(a, b ContactUser) bool {
+//      return a.Email == b.Email
+//  })
+//  q.Enqueue(ContactUser{Email: "alice@example.com"})
+//  q.Enqueue(ContactUser{Email: "bob@example.com"})
+//  q.Enqueue(ContactUser{Email: "alice@example.com"})
+//  fmt.Println(q.Length()) // Output: 2
+func (q *Queue[T]) PreventDuplicates(equalsFunc func(a, b T) bool) error {
 	var t T
 	v := reflect.ValueOf(t)
 	if !v.Comparable() {
@@ -36,6 +48,7 @@ func (q *Queue[T]) PreventDuplicates() error {
 	}
 
 	q.preventDuplicates = true
+	q.equalsFunc = equalsFunc
 
 	return nil
 }
@@ -49,14 +62,9 @@ func (q *Queue[T]) PreventDuplicates() error {
 //	q.Enqueue(2) // queue now contains: [1, 2]
 func (q *Queue[T]) Enqueue(element T) {
 	if q.preventDuplicates {
-		newReflection := reflect.ValueOf(element)
-		if newReflection.Comparable() {
-
-			for _, e := range q.elements {
-				existingReflection := reflect.ValueOf(e)
-				if newReflection.Equal(existingReflection) {
-					return
-				}
+		for _, e := range q.elements {
+			if q.equalsFunc(element, e) {
+				return
 			}
 		}
 	}

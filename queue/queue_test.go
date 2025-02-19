@@ -61,23 +61,31 @@ func TestQueue(t *testing.T) {
 }
 
 func TestQueue_PreventDuplicates(t *testing.T) {
-	queue := NewQueue[int]()
-	err := queue.PreventDuplicates()
+	type ContactUser struct {
+		Email string
+	}
+
+	queue := NewQueue[ContactUser]()
+	err := queue.PreventDuplicates(func(a, b ContactUser) bool {
+		return a.Email == b.Email
+	})
 	assertEquals(t, queue.Length(), 0)
 	assertEquals(t, queue.IsEmpty(), true)
 	assertEquals(t, err, nil)
 
-	queue.Enqueue(10)
+	queue.Enqueue(ContactUser{Email: "alice@example.com"})
 	assertEquals(t, queue.Length(), 1)
 
-	queue.Enqueue(20)
+	queue.Enqueue(ContactUser{Email: "bob@example.com"})
 	assertEquals(t, queue.Length(), 2)
 
-	queue.Enqueue(10)
+	queue.Enqueue(ContactUser{Email: "alice@example.com"})
 	assertEquals(t, queue.Length(), 2)
 
 	queueNotComparable := NewQueue[any]()
-	err = queueNotComparable.PreventDuplicates()
+	err = queueNotComparable.PreventDuplicates(func(a, b any) bool {
+		return false
+	})
 	if err == nil {
 		t.Errorf("failed to return error")
 	}
